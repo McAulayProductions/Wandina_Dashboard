@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Control Mobile</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#111827;
+      --card2:#1f2937;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --border:#334155;
+      --green:#10b981;
+      --amber:#f59e0b;
+      --red:#ef4444;
+      --blue:#3b82f6;
+      --white:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:10px;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto}
+    .hero,.card,.metric,.status-box,details{background:var(--card);border:1px solid var(--border);border-radius:16px}
+    .hero,.card,.status-box{padding:14px}
+    h1,h2,h3{margin:0 0 10px 0}
+    .sub,.small{color:var(--muted);line-height:1.5}
+    .sub{font-size:14px}
+    .small{font-size:12px}
+    .layout{display:grid;grid-template-columns:1fr;gap:12px}
+    .stack{display:grid;gap:12px}
+    .grid-2,.grid-3,.grid-4,.grid-5{display:grid;gap:10px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    label{display:block}
+    label span{display:block;margin-bottom:6px;color:var(--muted);font-size:13px;font-weight:700}
+    input,select,textarea,button{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#fff;color:#111827;font-size:15px}
+    input[readonly]{background:#e5e7eb}
+    textarea{min-height:90px;resize:vertical}
+    .mode-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+    .mode-row.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .mode-btn,.soft-btn{background:var(--white);font-weight:700;cursor:pointer}
+    .mode-btn.active{background:var(--green);border-color:var(--green);color:#052e16}
+    .metric{padding:14px;background:var(--card2)}
+    .metric .label{color:var(--muted);font-size:12px;font-weight:700}
+    .metric .value{margin-top:8px;font-size:24px;font-weight:800;line-height:1.08;word-break:break-word}
+    .metric .note{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.4}
+    .status-box{line-height:1.6}
+    .status-good-box{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.5)}
+    .status-warn-box{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45)}
+    .status-bad-box{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.45)}
+    .status-info-box{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.45)}
+    .status-good{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.5)}
+    .status-warn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45)}
+    .status-bad{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.45)}
+    .status-info{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.45)}
+    .row{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:12px;background:var(--card2);border:1px solid var(--border);margin-bottom:10px}
+    .progress{height:12px;background:#020617;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-top:8px}
+    .progress-fill{height:100%;width:0%;background:var(--green)}
+    .bill-row{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:10px;align-items:end;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+    details{padding:0;overflow:hidden}
+    details > summary{list-style:none;cursor:pointer;padding:16px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+    details > summary::-webkit-details-marker{display:none}
+    details .detail-body{padding:0 14px 14px 14px;border-top:1px solid var(--border)}
+    .sticky-mobile{position:sticky;top:8px;z-index:20;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+    .sticky-mobile .mini{padding:10px 12px;background:rgba(15,23,42,.97);border:1px solid var(--border);border-radius:12px;font-size:12px}
+    .pill-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    @media (min-width:950px){
+      .layout{grid-template-columns:.95fr 1.05fr}
+      .metric .value{font-size:28px}
+      .sticky-mobile{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:760px){
+      .grid-2,.grid-3,.grid-4,.grid-5,.bill-row,.mode-row,.mode-row.three,.pill-row,.sticky-mobile{grid-template-columns:1fr}
+      .row{flex-direction:column;align-items:flex-start}
+      body{padding:8px}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sticky-mobile">
+    <div class="mini" id="stickyVerdict">Verdict: -</div>
+    <div class="mini" id="stickyFloor">Floor: -</div>
+    <div class="mini" id="stickyFinal">Final: -</div>
+  </div>
+
+  <div class="hero">
+    <h1>Finance Control</h1>
+    <div class="sub">Mobile-first full system. Home first, quick updates first, everything else collapsible.</div>
+    <div class="mode-row">
+      <button id="mode-now" class="mode-btn active" type="button">Current phase</button>
+      <button id="mode-future" class="mode-btn" type="button">2027 0.8 mode</button>
+    </div>
+    <div class="mode-row three">
+      <button id="strategy-auto" class="mode-btn active" type="button">Auto</button>
+      <button id="strategy-survival" class="mode-btn" type="button">Survival</button>
+      <button id="strategy-attack" class="mode-btn" type="button">Attack</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="stack">
+      <div class="card">
+        <h2>Home</h2>
+        <div class="grid-2">
+          <div class="metric" id="cardVerdict"><div class="label">Verdict</div><div class="value" id="verdictVal"></div><div class="note" id="verdictNote"></div></div>
+          <div class="metric" id="cardFloorStatus"><div class="label">Floor status</div><div class="value" id="floorStatusVal"></div><div class="note">SAFE / NEAR / BELOW</div></div>
+          <div class="metric" id="cardSafe"><div class="label">Safe spend</div><div class="value" id="safeSpendVal"></div><div class="note">Maximum weekly spending</div></div>
+          <div class="metric" id="cardFinal"><div class="label">Final position</div><div class="value" id="finalVal"></div><div class="note">After all current settings</div></div>
+        </div>
+      </div>
+
+      <div class="card" id="commandCard">
+        <h2>Weekly command</h2>
+        <div class="status-box status-info-box" id="commandOutputBox">
+          <div id="commandOutput"></div>
+        </div>
+      </div>
+
+      <div class="card status-info" id="nextCard">
+        <h2>What changes this week</h2>
+        <div class="status-box status-info-box">
+          <h3 id="nextMoveTitle" style="margin-top:0;"></h3>
+          <div id="nextMoveBody"></div>
+        </div>
+      </div>
+
+      <div class="card control">
+        <h2>Quick update</h2>
+        <div class="small">These are the main inputs you should touch on your phone.</div>
+        <div class="grid-2" style="margin-top:10px;">
+          <label><span>Current offset</span><input id="offset" value="30000"></label>
+          <label><span>Current savings</span><input id="savings" value="2600"></label>
+          <label><span>Offset floor / danger line</span><input id="offsetFloor" value="30000"></label>
+          <label><span>Weeks to 24 July</span><input id="weeksToTarget" readonly></label>
+          <label><span>Current weekly income</span><input id="incomeNow" value="3250"></label>
+          <label><span>2027 weekly income</span><input id="incomeFuture" value="2600"></label>
+        </div>
+        <div class="grid-2" style="margin-top:10px;">
+          <label><span>Spend input mode</span><button id="toggleSpendMode" class="soft-btn" type="button">Single weekly total enabled</button></label>
+          <label><span>View depth</span><button id="toggleDeep" class="soft-btn" type="button">Simple mode visible</button></label>
+        </div>
+        <div id="spendManualWrap" style="margin-top:10px;">
+          <label><span>Total weekly spending</span><input id="spend" value="600"></label>
+        </div>
+        <div id="spendPasteWrap" class="hidden" style="margin-top:10px;">
+          <label><span>Paste spending entries</span><textarea id="spendEntries"></textarea></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>At a glance</h2>
+        <div class="grid-2">
+          <div class="metric" id="cardFloorNow"><div class="label">Floor gap now</div><div class="value" id="floorNowVal"></div><div class="note">Current offset minus floor</div></div>
+          <div class="metric" id="cardFloor4"><div class="label">Floor gap 4 weeks</div><div class="value" id="floor4Val"></div><div class="note">4-week offset minus floor</div></div>
+          <div class="metric" id="cardFloor8"><div class="label">Floor gap 8 weeks</div><div class="value" id="floor8Val"></div><div class="note">8-week offset minus floor</div></div>
+          <div class="metric" id="cardPressure"><div class="label">Total pressure</div><div class="value" id="pressureVal"></div><div class="note">Weekly non-negotiable load</div></div>
+        </div>
+      </div>
+
+      <div class="status-box" id="mentorBox">
+        <h3 id="mentorTitle"></h3>
+        <div id="mentorBody"></div>
+      </div>
+      <div class="card status-info" id="strategyCard">
+        <h2>Strategy summary</h2>
+        <div class="small" id="strategySummary"></div>
+      </div>
+
+
+      <details open>
+        <summary>Suggested weekly transfers <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric" id="livingCard"><div class="label">Living</div><div class="value" id="livingVal"></div><div class="note">Adjustable control lever</div></div>
+            <div class="metric" id="splurgeCard"><div class="label">Splurge</div><div class="value" id="splurgeVal"></div><div class="note">Keep tight</div></div>
+            <div class="metric" id="billsCard"><div class="label">Bills bucket</div><div class="value" id="billsVal"></div><div class="note">Do not starve this</div></div>
+            <div class="metric" id="saveTargetCard"><div class="label">Savings target</div><div class="value" id="saveTargetVal"></div><div class="note">Locked until 24 July</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Upcoming bills <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="small" style="margin-top:12px;">Each bill gets its own row. Weekly pressure is calculated from the due date automatically.</div>
+          <div id="billsContainer" style="margin-top:12px;"></div>
+          <button id="addBill" class="soft-btn" type="button">Add upcoming bill</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>August obligations <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric"><div class="label">Fence</div><div class="value" id="fenceVal"></div><div class="note">Locked target</div></div>
+            <div class="metric"><div class="label">Cruise remaining</div><div class="value" id="cruiseVal"></div><div class="note">Locked target</div></div>
+            <div class="metric"><div class="label">Current savings</div><div class="value" id="savingsVal"></div><div class="note">Starting point</div></div>
+            <div class="metric"><div class="label">Required weekly</div><div class="value" id="weeklyReqVal"></div><div class="note">Until 24 July</div></div>
+          </div>
+          <div class="small" style="margin-top:12px;">Current funding progress</div>
+          <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="small" id="progressText" style="margin-top:8px;"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>PPOR engine <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <label><span>PPOR balance</span><input id="pporBalanceCalc" value="560540"></label>
+            <label><span>PPOR years remaining</span><input id="pporYearsRemaining" value="28.5"></label>
+            <label><span>PPOR interest rate %</span><input id="pporRate" value="5.92"></label>
+            <label><span>PPOR weekly repayment</span><input id="pporWeeklyCalc" readonly></label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>IP build logic <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <label><span>Build stage</span>
+              <select id="buildStage">
+                <option value="plate">Plate height</option>
+                <option value="roof">Roof cover</option>
+                <option value="lockup">Lock up</option>
+                <option value="tiling">Tiling</option>
+                <option value="practical">Practical completion</option>
+                <option value="complete">Complete / rented</option>
+              </select>
+            </label>
+            <label><span>IP / Build interest rate %</span><input id="ipRate" value="6.39"></label>
+            <label><span>Expected weekly rent when complete</span><input id="rentWeekly" value="700"></label>
+            <label><span>2027 TRS days per week</span><input id="futureTRSDays" value="0"></label>
+            <label><span>TRS pay per day</span><input id="trsRate" value="450"></label>
+          </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric"><div class="label">Total planned IP debt</div><div class="value" id="ipDebtTotalVal"></div><div class="note">Equity release + proposed lending</div></div>
+            <div class="metric"><div class="label">Active debt at stage</div><div class="value" id="activeDebtVal"></div><div class="note" id="activeDebtNote"></div></div>
+            <div class="metric"><div class="label">Build interest / week</div><div class="value" id="ipInterestVal"></div><div class="note">Calculated from active drawn debt</div></div>
+            <div class="metric"><div class="label">Post-completion weekly net</div><div class="value" id="ipPostNetVal"></div><div class="note">Interest less expected rent</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Strategy and valuations <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="small" style="margin-top:12px;">Manual overrides are what the engine uses for decisions.</div>
+          <div class="grid-2" style="margin-top:12px;">
+            <label><span>PPOR live market reference</span><input id="pporLiveRef" value="960000"></label>
+            <label><span>PPOR manual override</span><input id="pporValue" value="1400000"></label>
+            <label><span>Wandina live market reference</span><input id="ipLiveRef" value="715000"></label>
+            <label><span>Wandina manual override</span><input id="ipValue" value="620000"></label>
+            <label><span>PPOR loan</span><input id="pporLoan" value="560540"></label>
+            <label><span>Debt recycle split target</span><input id="debtRecycleTarget" value="100000"></label>
+          </div>
+          <div class="grid-3" style="margin-top:12px;">
+            <label><span>IP low</span><input id="ipLow" value="680000"></label>
+            <label><span>IP mid</span><input id="ipMid" value="720000"></label>
+            <label><span>IP high</span><input id="ipHigh" value="800000"></label>
+            <label><span>Sell cost %</span><input id="sellCostPct" value="2.5"></label>
+            <label><span>Sale legal / discharge costs</span><input id="saleLegalCosts" value="4000"></label>
+            <label><span>Other sale costs</span><input id="saleOtherCosts" value="0"></label>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Decision signals <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric" id="refinanceCard"><div class="label">Refinance readiness</div><div class="value" id="refinanceVal"></div></div>
+            <div class="metric" id="sellSignalCard"><div class="label">Sell signal</div><div class="value" id="sellVal"></div></div>
+            <div class="metric" id="debtSignalCard"><div class="label">Debt recycle readiness</div><div class="value" id="debtVal"></div></div>
+            <div class="metric" id="futureSignalCard"><div class="label">2027 readiness</div><div class="value" id="futureReadyVal"></div></div>
+          </div>
+          <div class="status-box status-info-box" style="margin-top:12px;" id="equityAction"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Pressure stack <span>▼</span></summary>
+        <div class="detail-body">
+          <div style="margin-top:12px;">
+            <div class="row"><span>PPOR weekly repayment</span><strong id="stackPPOR"></strong></div>
+            <div class="row"><span>Bills bucket</span><strong id="stackBills"></strong></div>
+            <div class="row"><span>August savings target</span><strong id="stackSavings"></strong></div>
+            <div class="row"><span>Upcoming bills</span><strong id="stackUpcoming"></strong></div>
+            <div class="row"><span>IP current pressure</span><strong id="stackIP"></strong></div>
+            <div class="row"><span>Offset floor</span><strong id="stackFloor"></strong></div>
+            <div class="row"><span><strong>Total weekly pressure</strong></span><strong id="stackTotal"></strong></div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Offset trend <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric" id="offsetNowCard"><div class="label">Current offset</div><div class="value" id="offsetNowVal"></div><div class="note">Starting point</div></div>
+            <div class="metric" id="offset4Card"><div class="label">4-week projection</div><div class="value" id="offset4Val"></div><div class="note">At current settings</div></div>
+            <div class="metric" id="offset8Card"><div class="label">8-week projection</div><div class="value" id="offset8Val"></div><div class="note">At current settings</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details id="deepArea" class="hidden">
+        <summary>Deep analysis <span>▼</span></summary>
+        <div class="detail-body">
+          <div class="small" style="margin-top:12px;">Deep analysis is hidden by default on mobile.</div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="metric"><div class="label">PPOR equity</div><div class="value" id="pporEquityVal"></div><div class="note" id="pporEquityNote"></div></div>
+            <div class="metric"><div class="label">PPOR usable equity</div><div class="value" id="pporUsableVal"></div><div class="note">80% rule</div></div>
+            <div class="metric"><div class="label">IP equity</div><div class="value" id="ipEquityVal"></div><div class="note" id="ipEquityNote"></div></div>
+            <div class="metric"><div class="label">IP usable equity</div><div class="value" id="ipUsableVal"></div><div class="note">80% rule</div></div>
+            <div class="metric"><div class="label">Net low</div><div class="value" id="netLowVal"></div></div>
+            <div class="metric"><div class="label">Net mid</div><div class="value" id="netMidVal"></div></div>
+            <div class="metric"><div class="label">Net high</div><div class="value" id="netHighVal"></div></div>
+            <div class="metric"><div class="label">Net price to wipe PPOR</div><div class="value" id="wipeNeedVal"></div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2>Desktop side summary</h2>
+        <div class="small">Useful on larger screens. On phones, the home and sticky cards do the heavy lifting.</div>
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="metric"><div class="label">Mode</div><div class="value" id="sideModeVal"></div><div class="note">Current strategy mode</div></div>
+          <div class="metric"><div class="label">TRS weekly</div><div class="value" id="trsWeeklyVal"></div><div class="note">Only in 2027 mode</div></div>
+          <div class="metric"><div class="label">Income used</div><div class="value" id="incomeUsedVal"></div><div class="note">After phase logic</div></div>
+          <div class="metric"><div class="label">Bills weekly</div><div class="value" id="upcomingWeeklyVal"></div><div class="note">From due dates</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONFIG={FENCE_COST:4644,CRUISE_REMAINING:11600,EQUITY_RELEASE:215000,PROPOSED_LENDING:373000,PLANNED_TOTAL_IP_DEBT:588000,BILLS_BUCKET:150,LIVE_PPOR_REFERENCE:960000,LIVE_IP_REFERENCE:715000};
+let mode='now',strategyMode='auto',showDeep=false,usePasteSpend=false,billCounter=1;
+const $=id=>document.getElementById(id);
+const currency=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',maximumFractionDigits:0}).format(Number.isFinite(n)?n:0);
+const num=v=>{const n=parseFloat(String(v).replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0;};
+const parseSpendEntries=text=>text.split(/\n|,|;/).map(x=>x.trim()).filter(Boolean).map(num).filter(n=>n>0);
+const today=()=>new Date();
+const formatDate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function weeksToJuly24(){const now=today();const year=(now.getMonth()>6||(now.getMonth()===6&&now.getDate()>24))?now.getFullYear()+1:now.getFullYear();const target=new Date(year,6,24);const diff=Math.max(0,Math.ceil((target-now)/(1000*60*60*24)));return Math.max(1,Math.ceil(diff/7));}
+function computePPORWeekly(balance,annualRatePct,yearsRemaining){const weeklyRate=(annualRatePct/100)/52;const totalWeeks=Math.max(1,Math.round(yearsRemaining*52));if(weeklyRate<=0)return balance/totalWeeks;return balance*weeklyRate/(1-Math.pow(1+weeklyRate,-totalWeeks));}
+function addBillRow(name='',amount='',dueDate=''){const row=document.createElement('div');row.className='bill-row';row.dataset.id=String(billCounter++);row.innerHTML=`<label><span>Bill name</span><input class="bill-name" value="${name}"></label><label><span>Amount</span><input class="bill-amount" value="${amount}"></label><label><span>Due date</span><input class="bill-date" type="date" value="${dueDate}"></label><button type="button" class="soft-btn remove-bill">Remove</button>`;$('billsContainer').appendChild(row);row.querySelectorAll('input').forEach(el=>el.addEventListener('input',render));row.querySelector('.remove-bill').addEventListener('click',()=>{row.remove();render();});}
+function readBills(){return Array.from(document.querySelectorAll('.bill-row')).map(row=>{const name=row.querySelector('.bill-name').value.trim()||'Upcoming bill';const amount=num(row.querySelector('.bill-amount').value);const dueDate=row.querySelector('.bill-date').value;const diffDays=dueDate?Math.max(1,Math.ceil((new Date(dueDate)-today())/(1000*60*60*24))):7;const weeks=Math.max(1,Math.ceil(diffDays/7));return{name,amount,dueDate,weeks,weekly:amount/weeks};}).filter(b=>b.amount>0);}
+function paint(el,type){if(!el)return;el.classList.remove('status-good','status-warn','status-bad','status-info');el.classList.add(type);}
+function getWeeklyCommand(m){
+  const actions=[];
+  if(m.floorGap8<0){actions.push('🛑 Offset projected below floor → emergency tightening required');actions.push('Cut flexible spending immediately and protect the buffer first');}
+  else if(m.floorGap8<3000){actions.push('⚠️ Offset projected near floor → tighten now before it becomes a problem');}
+  if(m.offset8<m.offsetNow)actions.push('Offset is drifting down → do not ignore the slope');
+  if(m.living>500)actions.push('Reduce living to $500 or lower');
+  if(m.splurge>0&&m.strategyMode==='survival')actions.push('Reduce splurge to $0 in survival mode');
+  if(m.weeklySavingsTarget>800)actions.push('Savings target is aggressive → review weekly, not emotionally');
+  if(m.totalPressure>m.income)actions.push('Pressure exceeds income → smooth bills or cut flexible spend');
+  if(m.strategyMode==='attack'&&m.floorGap8>5000)actions.push('✅ Offset sits well above floor → attack mode has room');
+  if(!actions.length)actions.push('Stable → stay consistent this week');
+  return actions.join('<br>');
+}
+function compute(){
+  const offset=num($('offset').value),savings=num($('savings').value),offsetFloor=num($('offsetFloor').value)||30000;
+  const incomeNow=num($('incomeNow').value)||3250,incomeFuture=num($('incomeFuture').value)||2600;
+  const pporBalanceCalc=num($('pporBalanceCalc').value)||560540,pporYearsRemaining=num($('pporYearsRemaining').value)||28.5,pporRate=num($('pporRate').value)||5.92;
+  const pporWeeklyCalc=computePPORWeekly(pporBalanceCalc,pporRate,pporYearsRemaining);
+  const ipRate=num($('ipRate').value)||6.39,rentWeekly=num($('rentWeekly').value)||700;
+  const spend=usePasteSpend?parseSpendEntries($('spendEntries').value).reduce((a,b)=>a+b,0):num($('spend').value);
+  const weeks=weeksToJuly24();$('weeksToTarget').value=String(weeks);
+  const bills=readBills(),upcomingWeekly=bills.reduce((a,b)=>a+b.weekly,0);
+  const savingsGap=CONFIG.FENCE_COST+CONFIG.CRUISE_REMAINING-savings,weeklySavingsTarget=Math.max(0,savingsGap/weeks),progress=Math.min((savings/(CONFIG.FENCE_COST+CONFIG.CRUISE_REMAINING))*100,100);
+  const buildStage=$('buildStage').value,stageMap={plate:{ratio:.405,weeksToRent:16},roof:{ratio:.585,weeksToRent:12},lockup:{ratio:.765,weeksToRent:8},tiling:{ratio:.925,weeksToRent:4},practical:{ratio:1,weeksToRent:2},complete:{ratio:1,weeksToRent:0}},stageCfg=stageMap[buildStage];
+  const activeDebt=CONFIG.EQUITY_RELEASE+(CONFIG.PROPOSED_LENDING*stageCfg.ratio),weeklyIPInterest=(activeDebt*(ipRate/100))/52,fullIPInterest=(CONFIG.PLANNED_TOTAL_IP_DEBT*(ipRate/100))/52,ipPostNet=fullIPInterest-rentWeekly,ipPressure=buildStage==='complete'?Math.max(ipPostNet,0):weeklyIPInterest;
+  const trsWeekly=mode==='future'?(num($('futureTRSDays').value)*(num($('trsRate').value)||450)):0,income=(mode==='now'?incomeNow:incomeFuture)+trsWeekly,totalPressure=pporWeeklyCalc+CONFIG.BILLS_BUCKET+weeklySavingsTarget+upcomingWeekly+ipPressure,safeSpend=income-totalPressure,finalPosition=safeSpend-spend;
+  const offset4=offset+finalPosition*4,offset8=offset+finalPosition*8,floorGapNow=offset-offsetFloor,floorGap4=offset4-offsetFloor,floorGap8=offset8-offsetFloor;
+  const pporValue=num($('pporValue').value)||num($('pporLiveRef').value),ipValue=num($('ipValue').value)||num($('ipLiveRef').value),pporLoan=num($('pporLoan').value),ipDebt=CONFIG.PLANNED_TOTAL_IP_DEBT;
+  const pporEquity=pporValue-pporLoan,ipEquity=ipValue-ipDebt,pporUsable=Math.max(pporValue*.8-pporLoan,0),ipUsable=Math.max(ipValue*.8-ipDebt,0);
+  const sellPct=num($('sellCostPct').value)/100,saleFixed=num($('saleLegalCosts').value)+num($('saleOtherCosts').value),ipLow=num($('ipLow').value),ipMid=num($('ipMid').value),ipHigh=num($('ipHigh').value);
+  const netSale=price=>Math.max(price-(price*sellPct)-saleFixed-ipDebt,0),netLow=netSale(ipLow),netMid=netSale(ipMid),netHigh=netSale(ipHigh),wipeNeed=(pporLoan+ipDebt+saleFixed)/Math.max(.0001,1-sellPct);
+  const debtTarget=num($('debtRecycleTarget').value),debtReady=pporUsable>=debtTarget?'Ready':pporUsable>=debtTarget*.5?'Close':'Not ready',futureReady=offset8>=80000&&finalPosition>=0?'Ready':offset8>=50000&&finalPosition>=0?'Close':'Not ready',refinance=(pporUsable>200000||ipUsable>120000)?'Strong':(pporUsable>100000||ipUsable>50000)?'Possible':'Not ready',sell=netHigh>=pporLoan?'Net PPOR wipe possible in high band':ipValue>=ipMid?'Review numbers':'Too early';
+  let verdict='ON TRACK',tone='good';if(finalPosition<0){verdict='OFF TRACK';tone='bad';}else if(finalPosition<100){verdict='TIGHT';tone='warn';}
+  let activeStrategyMode=strategyMode;if(strategyMode==='auto')activeStrategyMode=(floorGap8<3000||verdict!=='ON TRACK')?'survival':'attack';
+  let living=550,splurge=50;if(activeStrategyMode==='survival'){living=500;splurge=0;}else if(activeStrategyMode==='attack'){living=500;splurge=floorGap8>5000?25:50;}
+  let mentorTitle='Hold the line.',mentorBody='Maintain current transfers. You are not in danger this week, but you still do not have room to get sloppy.';
+  if(floorGap8<0){mentorTitle='You are projected below the floor.';mentorBody='This is not a comfort phase. Protect offset immediately, cut flexible spending, and stop pretending the buffer is optional.';tone='bad';}
+  else if(floorGap8<3000){mentorTitle='You are close to the danger line.';mentorBody='One sloppy week can push you into a weaker position. Tighten now before the floor gets tested.';tone='warn';}
+  else if(verdict==='OFF TRACK'){mentorTitle='You are bleeding cash this week.';mentorBody='Even if the floor is not broken yet, the direction is wrong. Fix leakage before you talk strategy.';tone='bad';}
+  else if(activeStrategyMode==='attack'){mentorTitle='Attack mode is justified.';mentorBody='The system is holding above the floor. You have earned the right to think more aggressively, not emotionally.';tone='good';}
+  let nextTitle='Maintain course',nextBody='Keep transfers as recommended and protect the offset.';
+  if(floorGap8<0){nextTitle='Emergency protection mode';nextBody='Protect offset first. Cut flexible spending now, keep the bills bucket alive, and do not let the floor break further.';}
+  else if(activeStrategyMode==='survival'){nextTitle='Survival mode active';nextBody='Protect the offset first. Comfort spending loses before the buffer does.';}
+  else if(sell.includes('wipe')){nextTitle='Run full hold-vs-sell model';nextBody='High-band sale pressure is now meaningful. Model it carefully before making any move.';}
+  else if(activeStrategyMode==='attack'&&debtReady==='Ready'){nextTitle='Attack mode is supported';nextBody=`Buffer is holding. You can review stronger PPOR attack or a ${currency(debtTarget)} debt-recycling structure without fantasy.`;}
+  const floorStatus=floorGap8<0?'BELOW':floorGap8<3000?'NEAR':'SAFE';
+  const strategySummary=`Weekly pressure is ${currency(totalPressure)} against income of ${currency(income)}. ${verdict==='OFF TRACK'?'The system is currently failing and must be tightened before any strategic move.':verdict==='TIGHT'?'The system is functioning, but the buffer is weak and one sloppy week will hurt.':'The system is currently holding, but discipline still matters more than optimism.'} Active strategy mode: ${activeStrategyMode.toUpperCase()}. Offset floor status: ${floorStatus}. Refinance: ${refinance}. Sell: ${sell}. Debt recycling: ${debtReady}. 2027 readiness: ${futureReady}.`;
+  return{offsetNow:offset,offset4,offset8,offsetFloor,floorGapNow,floorGap4,floorGap8,floorStatus,strategyMode:activeStrategyMode,savings,weeklySavingsTarget,progress,pporWeeklyCalc,income,trsWeekly,totalPressure,safeSpend,finalPosition,activeDebt,stageRatio:stageCfg.ratio,weeklyIPInterest,ipPostNet,weeksToRent:stageCfg.weeksToRent,ipPressure,verdict,tone,mentorTitle,mentorBody,nextTitle,nextBody,living,splurge,pporEquity,ipEquity,pporUsable,ipUsable,pporValue,pporLoan,ipValue,netLow,netMid,netHigh,wipeNeed,refinance,sell,debtReady,futureReady,strategySummary,upcomingWeekly,debtTarget};
+}
+function render(){
+  const m=compute();
+  $('deepArea').classList.toggle('hidden',!showDeep);
+  $('spendManualWrap').classList.toggle('hidden',usePasteSpend);
+  $('spendPasteWrap').classList.toggle('hidden',!usePasteSpend);
+  $('toggleDeep').textContent=showDeep?'Deep layers visible':'Simple mode visible';
+  $('toggleSpendMode').textContent=usePasteSpend?'Paste transactions enabled':'Single weekly total enabled';
+  $('mode-now').classList.toggle('active',mode==='now');
+  $('mode-future').classList.toggle('active',mode==='future');
+  $('strategy-auto').classList.toggle('active',strategyMode==='auto');
+  $('strategy-survival').classList.toggle('active',strategyMode==='survival');
+  $('strategy-attack').classList.toggle('active',strategyMode==='attack');
+  $('pporWeeklyCalc').value=Math.round(m.pporWeeklyCalc).toString();
+  $('fenceVal').textContent=currency(CONFIG.FENCE_COST);
+  $('cruiseVal').textContent=currency(CONFIG.CRUISE_REMAINING);
+  $('savingsVal').textContent=currency(m.savings);
+  $('weeklyReqVal').textContent=currency(m.weeklySavingsTarget);
+  $('progressFill').style.width=`${m.progress}%`;
+  $('progressText').textContent=`${Math.round(m.progress)}% funded`;
+  $('ipDebtTotalVal').textContent=currency(CONFIG.PLANNED_TOTAL_IP_DEBT);
+  $('activeDebtVal').textContent=currency(m.activeDebt);
+  $('activeDebtNote').textContent=`${Math.round(m.stageRatio*100)}% of variable lending plus equity release`;
+  $('ipInterestVal').textContent=currency(m.weeklyIPInterest);
+  $('ipPostNetVal').textContent=currency(m.ipPostNet);
+  $('verdictVal').textContent=m.verdict;
+  $('verdictNote').textContent=mode==='now'?'Current phase':'2027 0.8 mode';
+  $('safeSpendVal').textContent=currency(m.safeSpend);
+  $('pressureVal').textContent=currency(m.totalPressure);
+  $('finalVal').textContent=currency(m.finalPosition);
+  $('floorNowVal').textContent=currency(m.floorGapNow);
+  $('floor4Val').textContent=currency(m.floorGap4);
+  $('floor8Val').textContent=currency(m.floorGap8);
+  $('floorStatusVal').textContent=m.floorStatus;
+  $('mentorTitle').textContent=m.mentorTitle;
+  $('mentorBody').textContent=m.mentorBody;
+  $('strategySummary').textContent=m.strategySummary;
+  $('nextMoveTitle').textContent=m.nextTitle;
+  $('nextMoveBody').textContent=m.nextBody;
+  $('commandOutput').innerHTML=getWeeklyCommand(m);
+  $('livingVal').textContent=currency(m.living);
+  $('splurgeVal').textContent=currency(m.splurge);
+  $('billsVal').textContent=currency(CONFIG.BILLS_BUCKET);
+  $('saveTargetVal').textContent=currency(m.weeklySavingsTarget);
+  $('refinanceVal').textContent=m.refinance;
+  $('sellVal').textContent=m.sell;
+  $('debtVal').textContent=m.debtReady;
+  $('futureReadyVal').textContent=m.futureReady;
+  $('equityAction').textContent=m.sell.includes('wipe')?'High-band sale could wipe the PPOR net of rough sale costs. This is no longer theoretical.':m.debtReady==='Ready'?`Debt recycling split of ${currency(m.debtTarget)} looks supportable from PPOR equity.`:'Hold and build position.';
+  $('stackPPOR').textContent=currency(m.pporWeeklyCalc);
+  $('stackBills').textContent=currency(CONFIG.BILLS_BUCKET);
+  $('stackSavings').textContent=currency(m.weeklySavingsTarget);
+  $('stackUpcoming').textContent=currency(m.upcomingWeekly);
+  $('stackIP').textContent=currency(m.ipPressure);
+  $('stackFloor').textContent=currency(m.offsetFloor);
+  $('stackTotal').textContent=currency(m.totalPressure);
+  $('offsetNowVal').textContent=currency(m.offsetNow);
+  $('offset4Val').textContent=currency(m.offset4);
+  $('offset8Val').textContent=currency(m.offset8);
+  $('pporEquityVal').textContent=currency(m.pporEquity);
+  $('pporEquityNote').textContent=`Value ${currency(m.pporValue)} less loan ${currency(m.pporLoan)}.`;
+  $('pporUsableVal').textContent=currency(m.pporUsable);
+  $('ipEquityVal').textContent=currency(m.ipEquity);
+  $('ipEquityNote').textContent=`Value ${currency(m.ipValue)} less debt ${currency(CONFIG.PLANNED_TOTAL_IP_DEBT)}.`;
+  $('ipUsableVal').textContent=currency(m.ipUsable);
+  $('netLowVal').textContent=currency(m.netLow);
+  $('netMidVal').textContent=currency(m.netMid);
+  $('netHighVal').textContent=currency(m.netHigh);
+  $('wipeNeedVal').textContent=currency(m.wipeNeed);
+  $('sideModeVal').textContent=m.strategyMode.toUpperCase();
+  $('trsWeeklyVal').textContent=currency(m.trsWeekly);
+  $('incomeUsedVal').textContent=currency(m.income);
+  $('upcomingWeeklyVal').textContent=currency(m.upcomingWeekly);
+  $('stickyVerdict').textContent=`Verdict: ${m.verdict}`;
+  $('stickyFloor').textContent=`Floor: ${m.floorStatus} (${currency(m.floorGap8)})`;
+  $('stickyFinal').textContent=`Final: ${currency(m.finalPosition)}`;
+  const mentor=$('mentorBox');
+  mentor.classList.remove('status-good-box','status-warn-box','status-bad-box','status-info-box');
+  mentor.classList.add(m.tone==='good'?'status-good-box':m.tone==='warn'?'status-warn-box':'status-bad-box');
+  paint($('cardVerdict'),m.tone==='good'?'status-good':m.tone==='warn'?'status-warn':'status-bad');
+  paint($('cardSafe'),'status-info');
+  paint($('cardPressure'),m.totalPressure>m.income?'status-bad':'status-info');
+  paint($('cardFinal'),m.finalPosition>=250?'status-good':m.finalPosition>=0?'status-warn':'status-bad');
+  paint($('cardFloorNow'),m.floorGapNow<0?'status-bad':m.floorGapNow<3000?'status-warn':'status-good');
+  paint($('cardFloor4'),m.floorGap4<0?'status-bad':m.floorGap4<3000?'status-warn':'status-good');
+  paint($('cardFloor8'),m.floorGap8<0?'status-bad':m.floorGap8<3000?'status-warn':'status-good');
+  paint($('cardFloorStatus'),m.floorStatus==='BELOW'?'status-bad':m.floorStatus==='NEAR'?'status-warn':'status-good');
+  paint($('commandCard'),m.floorGap8<0?'status-bad':m.floorGap8<3000?'status-warn':'status-good');
+  paint($('nextCard'),m.floorGap8<0?'status-bad':m.strategyMode==='survival'?'status-warn':'status-info');
+  paint($('livingCard'),m.living<=500?'status-good':'status-warn');
+  paint($('splurgeCard'),m.splurge===0?'status-good':'status-info');
+  paint($('billsCard'),'status-info');
+  paint($('saveTargetCard'),m.weeklySavingsTarget>900?'status-bad':m.weeklySavingsTarget>700?'status-warn':'status-good');
+  paint($('refinanceCard'),m.refinance==='Strong'?'status-good':m.refinance==='Possible'?'status-warn':'status-info');
+  paint($('sellSignalCard'),m.sell.includes('wipe')?'status-good':m.sell==='Review numbers'?'status-warn':'status-info');
+  paint($('debtSignalCard'),m.debtReady==='Ready'?'status-good':m.debtReady==='Close'?'status-warn':'status-info');
+  paint($('futureSignalCard'),m.futureReady==='Ready'?'status-good':m.futureReady==='Close'?'status-warn':'status-info');
+  paint($('offsetNowCard'),'status-info');
+  paint($('offset4Card'),m.floorGap4<0?'status-bad':m.floorGap4<3000?'status-warn':'status-good');
+  paint($('offset8Card'),m.floorGap8<0?'status-bad':m.floorGap8<3000?'status-warn':'status-good');
+}
+document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',render));
+$('toggleSpendMode').addEventListener('click',()=>{usePasteSpend=!usePasteSpend;render();});
+$('toggleDeep').addEventListener('click',()=>{showDeep=!showDeep;render();});
+$('mode-now').addEventListener('click',()=>{mode='now';render();});
+$('mode-future').addEventListener('click',()=>{mode='future';render();});
+$('strategy-auto').addEventListener('click',()=>{strategyMode='auto';render();});
+$('strategy-survival').addEventListener('click',()=>{strategyMode='survival';render();});
+$('strategy-attack').addEventListener('click',()=>{strategyMode='attack';render();});
+$('addBill').addEventListener('click',()=>{const d=today();d.setDate(d.getDate()+14);addBillRow('', '', formatDate(d));render();});
+addBillRow('Power bill','1433',(()=>{const d=today();d.setDate(d.getDate()+21);return formatDate(d);})());
+render();
+</script>
+</body>
+</html>
